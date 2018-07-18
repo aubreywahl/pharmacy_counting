@@ -49,7 +49,7 @@ def main():
       drug  = row["drug_name"]
       fname = row["prescriber_first_name"]
       lname = row["prescriber_last_name"]
-      cost  = float(row["drug_cost"])
+      cost  = int(row["drug_cost"])
       
       if (drug not in info_grouped_by_drug):
         info_grouped_by_drug[drug] = {}
@@ -74,16 +74,12 @@ def main():
   output.sort(key=operator.itemgetter(2,0), reverse=True)
 
   with open(path_out, "w+") as f:
-    fieldnames = ['drug_name', 'num_prescriber', 'total_cost']
-    writer = csv.DictWriter(f, fieldnames=fieldnames)
 
-    writer.writeheader()
+    # write the csv header
+    fieldnames = ['drug_name', 'num_prescriber', 'total_cost']
+    f.write(",".join(fieldnames))
     
     for line in output:
-      # this looks kinda dumb, but i had to for it to work
-      # i don't know how to python :'-(
-      writer.writerow({
-        'drug_name': line[0], 
-        'num_prescriber': line[1],
-        'total_cost': line[2],
-      })
+      formatted = "\n" + ",".join(map(str, line))
+      # for some reason, the spec neglects ending newline char
+      f.write(formatted)
