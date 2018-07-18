@@ -1,14 +1,31 @@
 import os
 import csv
+import operator
 from itertools import groupby
 from args import parse_commandline_args
 
-# gives one level of array-flattening
+"""
+flattens iterable by one level.
+
+e.g. flatten([1, ("some str", 2)]) => [1, "some str", 2]
+"""
 flatten = lambda l: [item for sublist in l for item in sublist]
 
+
 def count_and_sum(cost_dict):
+  """
+  takes a dictionary that looks like this:
+    {
+      ("Smith", "James"): 100.00,
+      ("Maria", "Hernandez"): 2033.33
+    }
+
+  returns a tuple (count, total), where `count` is a count of the entries 
+  and `total` is a sum of all the values in the dict.
+  """
   total = 0
   count = 0
+
   for k in cost_dict:
     total += cost_dict[k]
     count += 1
@@ -17,7 +34,7 @@ def count_and_sum(cost_dict):
   
 
 def main():
-  # get input/output file paths
+
   path_in, path_out = parse_commandline_args()
 
   info_grouped_by_drug = {}
@@ -37,17 +54,13 @@ def main():
       if (drug not in info_grouped_by_drug):
         info_grouped_by_drug[drug] = {}
 
-
       cost_by_prescriber = info_grouped_by_drug[drug]
 
       tup = (fname, lname)
 
-      # print("CPB before:" ,cost_by_prescriber)
-
       # if cost has not been recorded, record it
       if (tup not in cost_by_prescriber):
         cost_by_prescriber[tup] = cost
-        # print("CBP after:", cost_by_prescriber)
       
       # greedily use highest-cost value
       elif (cost_by_prescriber[tup] < cost):
@@ -55,17 +68,22 @@ def main():
 
       info_grouped_by_drug[drug] = cost_by_prescriber
 
+  # this is a list of [drug_name,num_prescriber,total_cost] tuples, unsorted
+  output = [flatten([[k], count_and_sum(info_grouped_by_drug[k])]) for k in info_grouped_by_drug]
 
-  print(info_grouped_by_drug)
-  unsorted_output = [flatten([[k], count_and_sum(info_grouped_by_drug[k])]) for k in info_grouped_by_drug]
-
-  print(unsorted_output)
-
-  # TODO: make this a real thing!
-  output_text = """drug_name,num_prescriber,total_cost
-  CHLORPROMAZINE,2,3000
-  BENZTROPINE MESYLATE,1,1500
-  AMBIEN,2,300"""
+  output.sort(key=operator.itemgetter(2,0), reverse=True)
 
   with open(path_out, "w+") as f:
-    f.write(output_text)
+    fieldnames = ['drug_name', 'num_prescriber', 'total_cost']
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+    writer.writeheader()
+    
+    for line in output:
+      # this looks kinda dumb, but i had to for it to work
+      # i don't know how to python :'-(
+      writer.writerow({
+        'drug_name': line[0], 
+        'num_prescriber': line[1],
+        'total_cost': line[2],
+      })
