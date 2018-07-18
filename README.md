@@ -24,4 +24,8 @@ In other words, as an input the program takes a list of drug perscribers/drug na
 
 # How to Run
 
-\# TODO: fill this in.
+You need python 3. This program only uses python3 standard library functions.
+
+To use on it's own, try something like
+
+`python3 ./src/pharmacy_counting path/to/input path/to/output`
