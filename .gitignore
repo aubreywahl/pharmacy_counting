@@ -3,8 +3,8 @@
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 
 # projects-specific
-output/*
-input/*
+# output/*
+# input/*
 insight_testsuite/temp/
 insight_testsuite/results.txt
 
