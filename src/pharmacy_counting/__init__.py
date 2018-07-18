@@ -99,6 +99,8 @@ def main():
 
   path_in, path_out = parse_commandline_args()
 
+  # see the definition of group_costs_by_drug_and_prescriber
+  # to see an example of what this object looks like
   info_grouped_by_drug = group_costs_by_drug_and_prescriber(path_in)
 
   # this is a list of [drug_name,num_prescriber,total_cost] tuples, unsorted
@@ -108,7 +110,7 @@ def main():
   ]
 
   # we use the sort method to sort in-place, which may spare us 
-  # some memory when we use a larger file!
+  # some memory when we use a larger input file!
   output.sort(key=operator.itemgetter(2,0), reverse=True)
 
   with open(path_out, "w+") as f:
